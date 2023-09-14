@@ -3,9 +3,9 @@ class Candidate
     :party,
     :votes
 
-  def initialize(name, party)
-    @name = name
-    @party = party
+  def initialize(candidate)
+    @name = candidate[:name]
+    @party = candidate[:party]
     @votes = 0
   end
 
