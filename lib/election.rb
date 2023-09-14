@@ -11,10 +11,20 @@ class Election
   end
 
   def candidates
-    @races.flat_map { |race| race.candidates}
+    @races.flat_map { |race| race.candidates }
   end
 
   def vote_counts
-    self.candidates.reduce(0) { |tot_votes, candidate| tot_votes + candidate.votes }
+    candidates.reduce(0) { |tot_votes, candidate| tot_votes + candidate.votes }
+  end
+
+  def winners
+    winners = []
+    @races.each do |race|
+      unless race.open? || race.tie?
+        winners << race.winner
+      end
+    end
+    winners
   end
 end

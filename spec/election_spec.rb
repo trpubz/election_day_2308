@@ -5,6 +5,10 @@ RSpec.describe Election do
     @election = Election.new("2024")
     @race1 = Race.new("Texas Governor")
     @race2 = Race.new("Arizona Governor")
+    @candidate1 = @race1.register_candidate!({name: "Diana D", party: :democrat})
+    @candidate2 = @race1.register_candidate!({name: "Roberto R", party: :republican})
+    @candidate3 = @race2.register_candidate!({name: "TP", party: "Free Masons"})
+    @candidate4 = @race2.register_candidate!({name: "DumbDumb", party: "Free Thinkers"})
   end
 
   describe "#initialize" do
@@ -34,25 +38,44 @@ RSpec.describe Election do
 
   describe "#candidates" do
     it "returns all candidates from all races" do
-      candidate1 = @race1.register_candidate!({name: "Diana D", party: :democrat})
-      candidate2 = @race1.register_candidate!({name: "Roberto R", party: :republican})
       @election.add_race(@race1)
-      expect(@election.candidates).to eq [candidate1, candidate2]
-      candidate3 = @race2.register_candidate!({ name: "TP", party: "Free Masons" })
+      expect(@election.candidates).to eq [@candidate1, @candidate2]
       @election.add_race(@race2)
-      expect(@election.candidates).to eq [candidate1, candidate2, candidate3]
+      expect(@election.candidates).to eq [@candidate1, @candidate2, @candidate3, @candidate4]
     end
   end
 
   describe "#vote_counts" do
     it "counts all votes from all candidates in all races" do
-      @race1.register_candidate!({name: "Diana D", party: :democrat})
-      @race1.register_candidate!({name: "Roberto R", party: :republican})
-      @race2.register_candidate!({ name: "TP", party: "Free Masons" })
       @election.add_race(@race1)
       @election.add_race(@race2)
       @election.candidates.each { |candidate| 3.times { candidate.vote_for! } }
-      expect(@election.vote_counts).to eq 9
+      expect(@election.vote_counts).to eq 12
+    end
+  end
+
+  describe "#winners" do
+    it "returns winners from each race" do
+      3.times {
+        @candidate1.vote_for!
+        @candidate3.vote_for!
+      }
+      @election.add_race(@race1)
+      @election.add_race(@race2)
+      @race1.close!
+      @race2.close!
+      expect(@election.winners).to eq [@candidate1, @candidate3]
+    end
+
+    it "returns winners from only closed races" do
+      3.times {
+        @candidate1.vote_for!
+        @candidate3.vote_for!
+      }
+      @election.add_race(@race1)
+      @election.add_race(@race2)
+      @race2.close!
+      expect(@election.winners).to eq [@candidate3]
     end
   end
 end
